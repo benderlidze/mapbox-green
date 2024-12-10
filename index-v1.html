@@ -121,7 +121,7 @@
 
 
 
-            map.addSource('clusters', {
+            map.addSource('icons', {
                 'type': 'geojson',
                 'data': {
                     'type': 'FeatureCollection',
@@ -138,13 +138,16 @@
                     map.addLayer({
                         'id': 'hub',
                         'type': 'symbol',
-                        'source': 'clusters',
+                        'source': 'icons',
                         'layout': {
                             'icon-image': 'custom-hub',
                             'icon-size': 1,
+                            'icon-anchor': 'bottom',
                             'icon-allow-overlap': true,
+                            'text-allow-overlap': true,
                             'icon-ignore-placement': true,
-                            'icon-anchor': 'bottom'
+                            'text-ignore-placement': true,
+                            'symbol-z-order': 'auto'
                         },
                         'filter': ['==', 'type', 'HUBS']
                     });
@@ -159,13 +162,16 @@
                     map.addLayer({
                         'id': 'icon',
                         'type': 'symbol',
-                        'source': 'clusters',
+                        'source': 'icons',
                         'layout': {
                             'icon-image': 'custom-marker',
                             'icon-size': 1,
-                            'icon-allow-overlap': true,
-                            'icon-ignore-placement': true,
                             'icon-anchor': 'bottom',
+                            'icon-allow-overlap': true,
+                            'text-allow-overlap': true,
+                            'icon-ignore-placement': true,
+                            'text-ignore-placement': true,
+                            'symbol-z-order': 'auto'
                         },
                         'filter': ['==', 'type', 'FEEDER YARDS']
                     });
@@ -174,18 +180,16 @@
 
             //text layer
             map.addLayer({
-                'id': 'cluster-count',
+                'id': 'text',
                 'type': 'symbol',
-                'source': 'clusters',
+                'source': 'icons',
                 'layout': {
                     'text-field': ['get', 'name'],
-                    'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                    'text-font': [ 'Arial Unicode MS Bold'],
                     'text-size': 13,
-                    'text-allow-overlap': true,
-                    'text-ignore-placement': true,
                     'text-anchor': 'bottom',
-                    'text-offset': [0, 1]
-
+                    'text-offset': [0, 1],
+                    'text-allow-overlap': true,
                 },
                 'paint': {
                     'text-color': '#fff',
@@ -193,24 +197,6 @@
                     'text-halo-width': 1
                 }
             });
-
-            // map.addLayer({
-            //     'id': 'clusters',
-            //     'type': 'circle',
-            //     'source': 'clusters',
-            //     'paint': {
-            //         'circle-color': [
-            //             'match',
-            //             ['get', 'type'],
-            //             'HUBS', '#14a800',
-            //             'FEEDER YARDS', '#4285f4',
-            //             '#4285f4'
-            //         ],
-            //         'circle-radius': 2,
-            //         'circle-stroke-width': 2,
-            //         'circle-stroke-color': '#fff'
-            //     }
-            // });
 
             const geojson = data.map((d, i) => {
                 return {
@@ -227,7 +213,7 @@
                 };
             });
 
-            map.getSource('clusters').setData({
+            map.getSource('icons').setData({
                 'type': 'FeatureCollection',
                 'features': geojson
             });
