@@ -129,54 +129,101 @@
                 }
             });
 
-            //addicon layer 
-            map.loadImage(
-                'hub.png',
-                function (error, image) {
-                    if (error) throw error;
-                    map.addImage('custom-hub', image);
-                    map.addLayer({
-                        'id': 'hub',
-                        'type': 'symbol',
-                        'source': 'icons',
-                        'layout': {
-                            'icon-image': 'custom-hub',
-                            'icon-size': 1,
-                            'icon-anchor': 'bottom',
-                            'icon-allow-overlap': true,
-                            'text-allow-overlap': true,
-                            'icon-ignore-placement': true,
-                            'text-ignore-placement': true,
-                            'symbol-z-order': 'auto'
-                        },
-                        'filter': ['==', 'type', 'HUBS']
-                    });
-                }
-            );
 
-            map.loadImage(
-                'icon.png',
-                function (error, image) {
-                    if (error) throw error;
-                    map.addImage('custom-marker', image);
-                    map.addLayer({
-                        'id': 'icon',
-                        'type': 'symbol',
-                        'source': 'icons',
-                        'layout': {
-                            'icon-image': 'custom-marker',
-                            'icon-size': 1,
-                            'icon-anchor': 'bottom',
-                            'icon-allow-overlap': true,
-                            'text-allow-overlap': true,
-                            'icon-ignore-placement': true,
-                            'text-ignore-placement': true,
-                            'symbol-z-order': 'auto'
-                        },
-                        'filter': ['==', 'type', 'FEEDER YARDS']
-                    });
+
+            const imageId = 'custom-hub';
+            map.addImage(imageId, { width: 0, height: 0, data: new Uint8Array() });
+            map.loadImage('hub.png', (error, image) => {
+                if (!error) {
+                    map.removeImage(imageId);
+                    map.addImage(imageId, image);
                 }
-            );
+            });
+            map.addLayer({
+                'id': 'hub',
+                'type': 'symbol',
+                'source': 'icons',
+                'layout': {
+                    'icon-image': 'custom-hub',
+                    'icon-size': 1,
+                    'icon-anchor': 'bottom',
+                    'icon-allow-overlap': true,
+                    'text-allow-overlap': true,
+                    'text-ignore-placement': true,
+                },
+                'filter': ['==', 'type', 'HUBS']
+            });
+
+
+            const imageId2 = 'custom-marker';
+            map.addImage(imageId2, { width: 0, height: 0, data: new Uint8Array() });
+            map.loadImage('icon.png', (error, image) => {
+                if (!error) {
+                    map.removeImage(imageId2);
+                    map.addImage(imageId2, image);
+                }
+            });
+
+            map.addLayer({
+                'id': 'icon',
+                'type': 'symbol',
+                'source': 'icons',
+                'layout': {
+                    'icon-image': 'custom-marker',
+                    'icon-size': 1,
+                    'icon-anchor': 'bottom',
+                    'icon-allow-overlap': true,
+                    'text-allow-overlap': true,
+                    'text-ignore-placement': true,
+                },
+                'filter': ['==', 'type', 'FEEDER YARDS']
+            });
+
+
+
+            //addicon layer 
+            // map.loadImage(
+            //     'hub.png',
+            //     function (error, image) {
+            //         if (error) throw error;
+            //         map.addImage('custom-hub', image);
+            //         map.addLayer({
+            //             'id': 'hub',
+            //             'type': 'symbol',
+            //             'source': 'icons',
+            //             'layout': {
+            //                 'icon-image': 'custom-hub',
+            //                 'icon-size': 1,
+            //                 'icon-anchor': 'bottom',
+            //                 'text-allow-overlap': true,
+            //                 'text-ignore-placement': true,
+            //             },
+            //             'filter': ['==', 'type', 'HUBS']
+            //         });
+            //     }
+            // );
+
+            // map.loadImage(
+            //     'icon.png',
+            //     function (error, image) {
+            //         if (error) throw error;
+            //         map.addImage('custom-marker', image);
+            //         map.addLayer({
+            //             'id': 'icon',
+            //             'type': 'symbol',
+            //             'source': 'icons',
+            //             'layout': {
+            //                 'icon-image': 'custom-marker',
+            //                 'icon-size': 1,
+            //                 'icon-anchor': 'bottom',
+            //                 'text-allow-overlap': true,
+            //                 'text-ignore-placement': true,
+            //                 'symbol-z-order': 'auto'
+            //             },
+            //             'filter': ['==', 'type', 'FEEDER YARDS']
+            //         });
+            //     }
+            // );
 
             //text layer
             map.addLayer({
@@ -185,11 +232,12 @@
                 'source': 'icons',
                 'layout': {
                     'text-field': ['get', 'name'],
-                    'text-font': [ 'Arial Unicode MS Bold'],
+                    'text-font': ['Arial Unicode MS Bold'],
                     'text-size': 13,
                     'text-anchor': 'bottom',
                     'text-offset': [0, 1],
                     'text-allow-overlap': true,
+                    'text-ignore-placement': true,
                 },
                 'paint': {
                     'text-color': '#fff',
