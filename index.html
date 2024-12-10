@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Create a hover effect</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.8.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.8.0/mapbox-gl.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="map"></div>
+    <script>
+
+        const data = [
+            {
+                name: `Carrollton 22097 Brewers Neck Blvd.Carrollton, VA 23314`,
+                lat: 36.945257,
+                lng: -76.544849,
+                type: "HUBS"
+            },
+            {
+                name: `Chesapeake Kelford 945 NC 11N Kelford, NC 27805`,
+                lat: 36.179601,
+                lng: -77.223576,
+                type: "HUBS"
+            },
+            {
+                name: `  Portsmouth 4091 Portsmouth Blvd.                Portsmouth, VA 23701`,
+                lat: 36.815859,
+                lng: -76.353774,
+                type: "HUBS"
+            },
+            { name: "Emporia 130 Courtland Rd Emporia, VA 23847", lat: 36.685351, lng: -77.504909, type: "FEEDER YARDS" },
+            { name: "Fairmont  406 Sandy Street Fairmont, NC 28340", lat: 34.500947, lng: -79.108935, type: "FEEDER YARDS" },
+            { name: "Greenville 623 Highway 903 N. Greenville, NC 27834", lat: 35.676067, lng: -77.348139, type: "FEEDER YARDS" },
+            { name: "Morgan’s Corner 1576 Millpond Rd. Elizabeth City, NC 27909", lat: 36.41703, lng: -76.351719, type: "FEEDER YARDS" },
+            { name: "Norfolk  1100 E Princess Anne Rd Norfolk, VA 23504", lat: 36.856221, lng: -76.271151, type: "FEEDER YARDS" },
+            { name: "Suffolk 277 Suburban Drive Suffolk, VA 23434", lat: 36.74638, lng: -76.55658, type: "FEEDER YARDS" },
+            { name: "Vanceboro  9922 Hwy 17 S. Vanceboro, NC 28586", lat: 35.425409, lng: -77.132704, type: "FEEDER YARDS" },
+            { name: "Virginia Beach  9922 Hwy 17 S. Vanceboro, NC 28586", lat: 35.425409, lng: -77.132704, type: "FEEDER YARDS" },
+        ]
+
+        mapboxgl.accessToken = 'pk.eyJ1Ijoic2VyaHV6IiwiYSI6ImNseXpvc3RlczJpbnIya3FscDU2aHc5d3EifQ.FHtPjde_lqensSHZxqthgw';
+        const map = new mapboxgl.Map({
+            container: 'map',
+            // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+            style: {
+                "version": 8,
+                "name": "Dark Green Map Style",
+                "sources": {
+                    "mapbox": {
+                        "type": "vector",
+                        "url": "mapbox://mapbox.mapbox-streets-v8"
+                    }
+                },
+                "layers": [
+                    {
+                        "id": "background",
+                        "type": "background",
+                        "paint": {
+                            "background-color": "#515f59"
+                        }
+                    },
+                    {
+                        "id": "land",
+                        "type": "fill",
+                        "source": "mapbox",
+                        "source-layer": "landuse",
+                        "paint": {
+                            "fill-color": "#515f59"
+                        }
+                    },
+                    {
+                        "id": "water",
+                        "type": "fill",
+                        "source": "mapbox",
+                        "source-layer": "water",
+                        "paint": {
+                            "fill-color": "#25282b"
+                        }
+                    },
+                    {
+                        "id": "roads",
+                        "type": "line",
+                        "source": "mapbox",
+                        "source-layer": "road",
+                        "paint": {
+                            "line-color": "rgba(255, 255, 255, 0.5)",
+                            "line-width": [
+                                "interpolate",
+                                ["linear"],
+                                ["zoom"],
+                                6, 0.5,
+                                14, 2
+                            ]
+                        }
+                    }
+                ]
+            }
+            ,
+            center: { lng: -77.56432474784984, lat: 35.74975166741493 },
+            zoom: 7.64797587290221,
+            projection: 'mercator'
+        });
+        let hoveredPolygonId = null;
+
+        map.on('load', async () => {
+
+            map.addSource('clusters', {
+                'type': 'geojson',
+                'data': {
+                    'type': 'FeatureCollection',
+                    'features': []
+                }
+            });
+            map.addLayer({
+                'id': 'clusters',
+                'type': 'circle',
+                'source': 'clusters',
+                'paint': {
+                    'circle-color': [
+                        'match',
+                        ['get', 'type'],
+                        'HUBS', '#14a800',
+                        'FEEDER YARDS', '#4285f4',
+                        '#4285f4'
+                    ],
+                    'circle-radius': 10,
+                    'circle-stroke-width': 2,
+                    'circle-stroke-color': '#fff'
+                }
+            });
+
+            const geojson = data.map((d, i) => {
+                return {
+                    'type': 'Feature',
+                    'geometry': {
+                        'type': 'Point',
+                        'coordinates': [d.lng, d.lat]
+                    },
+                    'properties': {
+                        'id': i,
+                        'name': d.name,
+                        'type': d.type
+                    },
+                };
+            });
+
+            map.getSource('clusters').setData({
+                'type': 'FeatureCollection',
+                'features': geojson
+            });
+
+        });
+
+    </script>
+</body>
+
+</html>
